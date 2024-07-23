@@ -3,9 +3,8 @@ import numpy as np
 from collections import deque
 from ultralytics import YOLO
 import time
-import datetime
 
-# please write a function where i can resize the frame to 640x640
+# Function to resize frame to 640x640
 def resize_frame(frame):
     return cv2.resize(frame, (640, 640))
 
@@ -14,14 +13,6 @@ model = YOLO('Fall_NModelv1.pt')
 
 # Open the video
 cap = cv2.VideoCapture('fall.mp4')
-
-# Prepare video writer
-# current_time_vdo = datetime.datetime.now()
-# timevdo = current_time_vdo.strftime('%Y-%m-%d %H:%M:%S.%f')
-# timestamp_for_filename_vdo = timevdo.replace(':', '_').replace('.', '_')
-# output_video = f'{timestamp_for_filename_vdo}_rec_video.mp4'
-# fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-# rec = cv2.VideoWriter(output_video, fourcc, 10.0, (640, 640))
 
 # Initialize data structures
 class_times = {}
@@ -74,7 +65,8 @@ while True:
     if 'Fallen' in class_times and class_times['Fallen'] > 5:
         if not warning_issued:
             warning_issued = True
-            cv2.putText(frame, "Level 2 Warning: Fallen detected for more than 5 seconds.", (int(100), int(350) - 10),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 2)
+            cv2.putText(frame, "Level 2 Warning: Fallen detected for more than 5 seconds.", (100, 340),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 2)
             print("Level 2 Warning: Fallen detected for more than 5 seconds.")
         
         # Analyze last 10 seconds of data
@@ -83,10 +75,12 @@ while True:
 
         if 'Falling' in recent_history:
             print("Fall detected from Falling to Fallen.")
-            cv2.putText(frame,"Fall detected from Falling to Fallen.", (int(100), int(300) - 10),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (25, 200, 0), 2)
+            cv2.putText(frame, "Fall detected from Falling to Fallen.", (100, 290),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (25, 200, 0), 2)
         elif 'Sitting' in recent_history:
             print("Transition from Sitting to Fallen detected.")
-            cv2.putText(frame, "Level 2 Warning: Fallen detected for more than 5 seconds.", (int(100), int(300) - 10),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (25, 250, 0), 2)
+            cv2.putText(frame, "Transition from Sitting to Fallen detected.", (100, 290),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (25, 250, 0), 2)
 
     # Display total time for each class on the video frame
     y_offset = 20
@@ -95,13 +89,12 @@ while True:
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 2)
         y_offset += 15
 
-    # Display the frame
-    frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-    frame = cv2.resize(frame, (640, 640))
+    # Resize and display the frame
+    frame = resize_frame(frame)
     cv2.imshow('Frame', frame)
 
-    # Write to output video
-   # rec.write(frame)
+    # Write to output video (uncomment if needed)
+    # rec.write(frame)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):  # Press 'q' to quit
         break
